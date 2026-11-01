@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Доповіді → Excel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Доповіді → Excel</h1>
+  <span class="sub">встав текст пачкою — отримай файл</span>
+</header>
+
+<main>
+  <label class="sr-only" for="t">Текст доповідей</label>
+  <textarea id="t" spellcheck="false"
+    placeholder="Встав текст доповідей. Кожна починається з рядка «Дата:»"></textarea>
+
+  <div class="row">
+    <button type="button" id="go">Завантажити XLSX</button>
+    <button type="button" class="ghost" id="prev">Попередній перегляд</button>
+    <button type="button" class="ghost" id="clr">Очистити</button>
+    <span class="status" id="s" role="status"></span>
+  </div>
+
+  <details class="hint">
+    <summary>Які поля розпізнаються</summary>
+    <p>
+      Нова доповідь починається з рядка, що містить ключ <code>Дата</code>.
+      Далі — рядки виду <code>Ключ: значення</code> у будь-якому порядку.
+    </p>
+    <p>
+      Поля: <code>Дата</code>, <code>Час</code>, <code>№ цілі</code>,
+      <code>Результат</code>, <code>Н.П.</code>, <code>Обл.</code>,
+      <code>Підрозділ</code>, <code>Позивний</code>, <code>Зброя</code>,
+      <code>Висота</code>, <code>Опис</code>, <code>Коментар</code>.
+    </p>
+    <p>
+      Рядки обліку боєприпасів:
+      <code>Набій &lt;калібр&gt; мм (&lt;платформа&gt;) - &lt;кількість&gt;</code>
+    </p>
+    <p class="note">
+      Обробка відбувається повністю у твоєму браузері. Дані нікуди не надсилаються.
+    </p>
+  </details>
+
+  <div id="out"></div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
