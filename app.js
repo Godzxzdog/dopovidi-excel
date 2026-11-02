@@ -138,6 +138,8 @@ function collectBlockItems(lines) {
     if (AMMO_BLOCK_HEAD.test(ln)) { inBlock = true; continue; }
     if (!inBlock) continue;
 
+    // A line that carries its own caliber also resets the context: the
+    // following items belong to it only if they lack a caliber themselves.
     const ctx = ln.match(CALIBER_CONTEXT);
     if (ctx) { caliberCtx = ctx[1] + 'мм'; continue; }
 
@@ -148,9 +150,13 @@ function collectBlockItems(lines) {
 
     const m = ln.match(AMMO_BLOCK_ITEM);
     if (m) {
+      const type = m[1].trim();
+      // Type names that embed their own caliber (5,45пс, 5.45т) must not
+      // inherit the caliber of the section they are listed under.
+      const own = type.match(/^([0-9]+[.,][0-9]+)/);
       out.push({
-        caliber: caliberCtx,
-        type: m[1].trim(),
+        caliber: own ? own[1] : caliberCtx,
+        type,
         count: parseInt(m[2], 10),
       });
     }

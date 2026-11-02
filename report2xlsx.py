@@ -59,9 +59,12 @@ MISSILE_RE = re.compile(
 #   5,45пс - 84
 AMMO_BLOCK_HEAD = re.compile(r"^\s*НАБОЇ\s*:?\s*$", re.I)
 AMMO_BLOCK_ITEM = re.compile(
-    r"^\s*([0-9][0-9,.\-]*\s*(?:мм)?|[А-ЯІЇЄA-Z][\w,.\-\u0445x×]*)\s*"
+    r"^\s*([А-Яа-яІіЇїЄєA-Za-z0-9][А-Яа-яІіЇїЄєA-Za-z0-9,.\- ]*?)\s*"
     r"[-\u2013\u2014]\s*([0-9]+)\s*$", re.U)
 CALIBER_CONTEXT = re.compile(r"^\s*([0-9][0-9\-]*)\s+([0-9]+)\s*мм\s*$")
+
+# A type name that embeds its own caliber, e.g. "5,45пс" or "5.45т".
+OWN_CALIBER = re.compile(r"^([0-9]+[.,][0-9]+)")
 
 REPORT_START = re.compile(r"^\s*Дата\s*:", re.I)
 KEY_LINE = re.compile(
@@ -146,9 +149,13 @@ def parse_report(block):
             continue
         m = AMMO_BLOCK_ITEM.match(ln)
         if m:
+            type_name = m.group(1).strip()
+            # Type names that embed their own caliber (5,45пс, 5.45т) must not
+            # inherit the caliber of the section they are listed under.
+            own = OWN_CALIBER.match(type_name)
             block_items.append({
-                "caliber": caliber_ctx,
-                "type": m.group(1).strip(),
+                "caliber": own.group(1) if own else caliber_ctx,
+                "type": type_name,
                 "count": int(m.group(2)),
             })
 
