@@ -39,6 +39,30 @@ AMMO_RE = re.compile(
     re.I,
 )
 
+# Artillery shells use "Снаряд" instead of "Набій": same shape, own sheet.
+SHELL_RE = re.compile(
+    r"Снаряд\s+([0-9]+(?:[.,][0-9]+)?(?:\s*[хx\u0445\u00d7X]\s*[0-9]+)?)\s*мм"
+    r"(?:\s*\((.*)\))?"
+    r"\s*[-\u2013\u2014]\s*([0-9]+)",
+    re.I,
+)
+
+# Guided missiles: "Розхід ЗКР до ЗРК – 1".
+MISSILE_RE = re.compile(
+    r"Розхід\s+ЗКР[^0-9]*[-\u2013\u2014]?\s*([0-9]+)", re.I)
+
+# A "НАБОЇ:" block lists shell types under one caliber:
+#   НАБОЇ:
+#   23-2  23мм
+#   ОФЗ - 78
+#   ОФЗТ - 20
+#   5,45пс - 84
+AMMO_BLOCK_HEAD = re.compile(r"^\s*НАБОЇ\s*:?\s*$", re.I)
+AMMO_BLOCK_ITEM = re.compile(
+    r"^\s*([0-9][0-9,.\-]*\s*(?:мм)?|[А-ЯІЇЄA-Z][\w,.\-\u0445x×]*)\s*"
+    r"[-\u2013\u2014]\s*([0-9]+)\s*$", re.U)
+CALIBER_CONTEXT = re.compile(r"^\s*([0-9][0-9\-]*)\s+([0-9]+)\s*мм\s*$")
+
 REPORT_START = re.compile(r"^\s*Дата\s*:", re.I)
 KEY_LINE = re.compile(
     r"^\s*(" + "|".join(p for _, p in FIELD_KEYS) + r")\s*:", re.I)
@@ -60,7 +84,13 @@ def split_reports(text):
 
 
 def parse_report(block):
-    """Return (report dict, list of ammunition dicts)."""
+    """Return (report dict, ammo, shells, missiles, block_items).
+
+    ammo   — "Набій <калібр> мм (<платформа>) - <кількість>"
+    shells — same shape with "Снаряд" (artillery)
+    missiles — "Розхід ЗКР до ЗРК – <кількість>"
+    block    — items listed under a "НАБОЇ:" heading
+    """
     lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
     record = {}
 
@@ -82,14 +112,47 @@ def parse_report(block):
             break
         record[key] = value
 
-    ammo = []
-    for m in AMMO_RE.finditer(block):
-        ammo.append({
-            "caliber": m.group(1).replace(" ", "").replace(",", ","),
-            "platform": (m.group(2) or "").strip(),
-            "count": int(m.group(3)),
-        })
-    return record, ammo
+    def collect(rx):
+        out = []
+        for m in rx.finditer(block):
+            out.append({
+                "caliber": m.group(1).replace(" ", ""),
+                "platform": (m.group(2) or "").strip(),
+                "count": int(m.group(3)),
+            })
+        return out
+
+    ammo = collect(AMMO_RE)
+    shells = collect(SHELL_RE)
+
+    missiles = [{"count": int(m.group(1))} for m in MISSILE_RE.finditer(block)]
+
+    # "НАБОЇ:" heading followed by "тип - кількість" lines.
+    block_items = []
+    caliber_ctx = ""
+    in_block = False
+    for ln in lines:
+        if AMMO_BLOCK_HEAD.match(ln):
+            in_block = True
+            continue
+        if not in_block:
+            continue
+        ctx = CALIBER_CONTEXT.match(ln)
+        if ctx:
+            caliber_ctx = f"{ctx.group(1)}мм"
+            continue
+        if KEY_LINE.match(ln) or AMMO_RE.search(ln) or SHELL_RE.search(ln):
+            in_block = False
+            continue
+        m = AMMO_BLOCK_ITEM.match(ln)
+        if m:
+            block_items.append({
+                "caliber": caliber_ctx,
+                "type": m.group(1).strip(),
+                "count": int(m.group(2)),
+            })
+
+    return record, ammo, shells, missiles, block_items
 
 
 # ---------------------------------------------------------------- xlsx writer
@@ -212,41 +275,95 @@ def main():
     blocks = split_reports(text)
     print(f"[parse] reports found: {len(blocks)}", file=sys.stderr)
 
-    reports, ammo_rows = [], []
+    reports, ammo_rows, shell_rows, missile_rows = [], [], [], []
     for n, block in enumerate(blocks, 1):
-        rec, ammo = parse_report(block)
+        rec, ammo, shells, missiles, block_items = parse_report(block)
+
+        # Items listed under "НАБОЇ:" count as ammunition too.
+        for it in block_items:
+            ammo.append({"caliber": it["caliber"],
+                         "platform": it["type"],
+                         "count": it["count"]})
+
         rec["ammo_total"] = sum(a["count"] for a in ammo)
+        rec["shell_total"] = sum(s["count"] for s in shells)
+        rec["missile_total"] = sum(m["count"] for m in missiles)
         reports.append(rec)
+
+        base = {"report": n, "date": rec["date"], "time": rec["time"],
+                "callsign": rec["callsign"]}
         for a in ammo:
-            ammo_rows.append({
-                "report": n,
-                "date": rec["date"],
-                "time": rec["time"],
-                "callsign": rec["callsign"],
-                "caliber": a["caliber"],
-                "platform": a["platform"],
-                "count": a["count"],
-            })
+            ammo_rows.append(dict(base, caliber=a["caliber"],
+                                  platform=a["platform"], count=a["count"]))
+        for s in shells:
+            shell_rows.append(dict(base, caliber=s["caliber"],
+                                   platform=s["platform"], count=s["count"]))
+        for m in missiles:
+            missile_rows.append(dict(base, count=m["count"]))
 
     header = [label for _, label in REPORT_COLS]
     rows = [header] + [[r.get(k, "") for k, _ in REPORT_COLS] for r in reports]
 
-    ammo_header = ["Звіт", "Дата", "Час", "Позивний", "Калібр",
-                   "Платформа", "Кількість"]
-    ammo_data = [ammo_header] + [
-        [a["report"], a["date"], a["time"], a["callsign"],
-         a["caliber"], a["platform"], a["count"]] for a in ammo_rows]
+    def detail(items):
+        head = ["Звіт", "Дата", "Час", "Позивний", "Калібр",
+                "Платформа", "Кількість"]
+        data = [head] + [[a["report"], a["date"], a["time"], a["callsign"],
+                          a["caliber"], a["platform"], a["count"]]
+                         for a in items]
+        return data, [8, 12, 8, 18, 14, 28, 10]
+
+    ammo_data, ammo_widths = detail(ammo_rows)
+    shell_data, shell_widths = detail(shell_rows)
 
     widths = []
     for i, (k, label) in enumerate(REPORT_COLS):
         longest = max([len(label)] +
                       [len(str(r.get(k, ""))) for r in reports] or [10])
         widths.append(min(max(longest + 2, 10), 50))
-    ammo_widths = [8, 12, 8, 18, 14, 28, 10]
+    missile_data = [["Звіт", "Дата", "Час", "Позивний", "Кількість"]] + [
+        [m["report"], m["date"], m["time"], m["callsign"], m["count"]]
+        for m in missile_rows]
 
-    write_xlsx(out, [("Доповіді", rows, widths),
-                     ("Набої", ammo_data, ammo_widths)])
-    print(f"[done] {out}: {len(reports)} reports, {len(ammo_rows)} ammo rows")
+    # Summary sheet: consumption grouped by type.
+    def totals(key):
+        acc = {}
+        for it in ammo_rows:
+            label = it[key] or "(не вказано)"
+            acc[label] = acc.get(label, 0) + it["count"]
+        return sorted(acc.items(), key=lambda kv: -kv[1])
+
+    summary = [["Розхід по типах"],
+               [],
+               ["Набої — по калібрах", "Кількість"]]
+    summary += [[k, v] for k, v in totals("caliber")]
+    summary += [["", ""], ["Набої — по платформах", "Кількість"]]
+    summary += [[k, v] for k, v in totals("platform")]
+
+    if shell_rows:
+        sc = {}
+        for s in shell_rows:
+            sc[s["caliber"]] = sc.get(s["caliber"], 0) + s["count"]
+        summary += [["", ""], ["Снаряди — по калібрах", "Кількість"]]
+        summary += [[k, v] for k, v in sorted(sc.items(), key=lambda kv: -kv[1])]
+
+    summary += [["", ""],
+                ["Разом набоїв", sum(a["count"] for a in ammo_rows)],
+                ["Разом снарядів", sum(s["count"] for s in shell_rows)],
+                ["Разом ЗКР", sum(m["count"] for m in missile_rows)],
+                ["Доповідей", len(reports)]]
+
+    sheets = [("Доповіді", rows, widths),
+              ("Набої", ammo_data, ammo_widths)]
+    if shell_rows:
+        sheets.append(("Снаряди", shell_data, shell_widths))
+    if missile_rows:
+        sheets.append(("ЗКР", missile_data, [8, 12, 8, 18, 10]))
+    sheets.append(("Розхід по типах", summary, [32, 14]))
+
+    write_xlsx(out, sheets)
+    print(f"[done] {out}: {len(reports)} reports, "
+          f"{len(ammo_rows)} ammo, {len(shell_rows)} shells, "
+          f"{len(missile_rows)} missiles")
     return 0
 
 

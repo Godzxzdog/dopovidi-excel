@@ -26,6 +26,18 @@ const FIELD_KEYS = [
 // The count separator may be a hyphen, en- or em-dash.
 const AMMO_SRC = 'Набій\\s+([0-9]+(?:[.,][0-9]+)?(?:\\s*[хx\u0445\u00d7X]\\s*[0-9]+)?)\\s*мм(?:\\s*\\((.*)\\))?\\s*[-\u2013\u2014]\\s*([0-9]+)';
 
+// Artillery shells use "Снаряд" instead of "Набій": same shape, own sheet.
+const SHELL_SRC = 'Снаряд\\s+([0-9]+(?:[.,][0-9]+)?(?:\\s*[хx\u0445\u00d7X]\\s*[0-9]+)?)\\s*мм(?:\\s*\\((.*)\\))?\\s*[-\u2013\u2014]\\s*([0-9]+)';
+
+// Guided missiles: "Розхід ЗКР до ЗРК – 1".
+const MISSILE_SRC = 'Розхід\\s+ЗКР[^0-9]*[-\u2013\u2014]?\\s*([0-9]+)';
+
+const AMMO_BLOCK_HEAD = /^\s*НАБОЇ\s*:?\s*$/i;
+// Item line: "<type> - <count>", e.g. "ОФЗ - 78" or "5,45пс - 84".
+// \w is ASCII-only in JS, so the type class is spelled out for Cyrillic.
+const AMMO_BLOCK_ITEM = /^\s*([А-Яа-яІіЇїЄєA-Za-z0-9][А-Яа-яІіЇїЄєA-Za-z0-9,.\- ]*?)\s*[-\u2013\u2014]\s*([0-9]+)\s*$/u;
+const CALIBER_CONTEXT = /^\s*([0-9][0-9\-]*)\s+([0-9]+)\s*мм\s*$/;
+
 const REPORT_START = /^\s*Дата\s*:/i;
 
 const KEY_LINE = new RegExp(
@@ -85,7 +97,65 @@ function parseReport(block) {
     });
   }
 
-  return { record, ammo };
+  return { record, ammo, shells: collect(SHELL_SRC, block),
+           missiles: collectMissiles(block),
+           blockItems: collectBlockItems(lines) };
+}
+
+function collect(src, block) {
+  const out = [];
+  const rx = new RegExp(src, 'gi');
+  let m;
+  while ((m = rx.exec(block)) !== null) {
+    out.push({
+      caliber: m[1].replace(/\s+/g, ''),
+      platform: (m[2] || '').trim(),
+      count: parseInt(m[3], 10),
+    });
+  }
+  return out;
+}
+
+function collectMissiles(block) {
+  const out = [];
+  const rx = new RegExp(MISSILE_SRC, 'gi');
+  let m;
+  while ((m = rx.exec(block)) !== null) {
+    out.push({ count: parseInt(m[1], 10) });
+  }
+  return out;
+}
+
+// "НАБОЇ:" heading followed by "тип - кількість" lines.
+function collectBlockItems(lines) {
+  const out = [];
+  let caliberCtx = '';
+  let inBlock = false;
+  const ammoTest = new RegExp(AMMO_SRC, 'i');
+  const shellTest = new RegExp(SHELL_SRC, 'i');
+
+  for (const ln of lines) {
+    if (AMMO_BLOCK_HEAD.test(ln)) { inBlock = true; continue; }
+    if (!inBlock) continue;
+
+    const ctx = ln.match(CALIBER_CONTEXT);
+    if (ctx) { caliberCtx = ctx[1] + 'мм'; continue; }
+
+    if (KEY_LINE.test(ln) || ammoTest.test(ln) || shellTest.test(ln)) {
+      inBlock = false;
+      continue;
+    }
+
+    const m = ln.match(AMMO_BLOCK_ITEM);
+    if (m) {
+      out.push({
+        caliber: caliberCtx,
+        type: m[1].trim(),
+        count: parseInt(m[2], 10),
+      });
+    }
+  }
+  return out;
 }
 
 const REPORT_COLS = [
@@ -100,27 +170,41 @@ function buildData(text) {
   const blocks = splitReports(text);
   const reports = [];
   const ammoRows = [];
+  const shellRows = [];
+  const missileRows = [];
 
   blocks.forEach((block, idx) => {
     const n = idx + 1;
-    const { record, ammo } = parseReport(block);
+    const { record, ammo, shells, missiles, blockItems } = parseReport(block);
+
+    // Items listed under "НАБОЇ:" count as ammunition too.
+    for (const it of blockItems) {
+      ammo.push({ caliber: it.caliber, platform: it.type, count: it.count });
+    }
+
     record.ammo_total = ammo.reduce((s, a) => s + a.count, 0);
+    record.shell_total = shells.reduce((s, a) => s + a.count, 0);
+    record.missile_total = missiles.reduce((s, a) => s + a.count, 0);
     reports.push(record);
 
+    const base = {
+      report: n, date: record.date, time: record.time,
+      callsign: record.callsign,
+    };
     for (const a of ammo) {
-      ammoRows.push({
-        report: n,
-        date: record.date,
-        time: record.time,
-        callsign: record.callsign,
-        caliber: a.caliber,
-        platform: a.platform,
-        count: a.count,
-      });
+      ammoRows.push(Object.assign({}, base,
+        { caliber: a.caliber, platform: a.platform, count: a.count }));
+    }
+    for (const s of shells) {
+      shellRows.push(Object.assign({}, base,
+        { caliber: s.caliber, platform: s.platform, count: s.count }));
+    }
+    for (const m of missiles) {
+      missileRows.push(Object.assign({}, base, { count: m.count }));
     }
   });
 
-  return { reports, ammoRows };
+  return { reports, ammoRows, shellRows, missileRows };
 }
 
 // ---------------------------------------------------------------- xlsx
@@ -314,20 +398,65 @@ function widthsFor(reports) {
 }
 
 function toSheets(data) {
-  const { reports, ammoRows } = data;
+  const { reports, ammoRows, shellRows, missileRows } = data;
 
   const header = REPORT_COLS.map(([, label]) => label);
   const rows = [header, ...reports.map(r => REPORT_COLS.map(([k]) => r[k] || ''))];
 
-  const ammoHeader = ['Звіт', 'Дата', 'Час', 'Позивний', 'Калібр',
-                      'Платформа', 'Кількість'];
-  const ammoData = [ammoHeader, ...ammoRows.map(a =>
-    [a.report, a.date, a.time, a.callsign, a.caliber, a.platform, a.count])];
+  function detail(items) {
+    const head = ['Звіт', 'Дата', 'Час', 'Позивний', 'Калібр',
+                  'Платформа', 'Кількість'];
+    return [head, ...items.map(a =>
+      [a.report, a.date, a.time, a.callsign, a.caliber, a.platform, a.count])];
+  }
 
-  return [
+  const sheets = [
     { name: 'Доповіді', rows, widths: widthsFor(reports) },
-    { name: 'Набої', rows: ammoData, widths: [8, 12, 8, 18, 14, 28, 10] },
+    { name: 'Набої', rows: detail(ammoRows), widths: [8, 12, 8, 18, 14, 28, 10] },
   ];
+
+  if (shellRows.length) {
+    sheets.push({ name: 'Снаряди', rows: detail(shellRows),
+                  widths: [8, 12, 8, 18, 14, 28, 10] });
+  }
+  if (missileRows.length) {
+    sheets.push({
+      name: 'ЗКР',
+      rows: [['Звіт', 'Дата', 'Час', 'Позивний', 'Кількість'],
+             ...missileRows.map(m => [m.report, m.date, m.time, m.callsign, m.count])],
+      widths: [8, 12, 8, 18, 10],
+    });
+  }
+
+  // Summary: consumption grouped by type.
+  function totals(items, key) {
+    const acc = {};
+    for (const it of items) {
+      const label = it[key] || '(не вказано)';
+      acc[label] = (acc[label] || 0) + it.count;
+    }
+    return Object.entries(acc).sort((a, b) => b[1] - a[1]);
+  }
+
+  const summary = [['Розхід по типах'], [],
+                   ['Набої — по калібрах', 'Кількість'],
+                   ...totals(ammoRows, 'caliber'),
+                   ['', ''], ['Набої — по платформах', 'Кількість'],
+                   ...totals(ammoRows, 'platform')];
+
+  if (shellRows.length) {
+    summary.push(['', ''], ['Снаряди — по калібрах', 'Кількість'],
+                 ...totals(shellRows, 'caliber'));
+  }
+
+  summary.push(['', ''],
+               ['Разом набоїв', ammoRows.reduce((s, a) => s + a.count, 0)],
+               ['Разом снарядів', shellRows.reduce((s, a) => s + a.count, 0)],
+               ['Разом ЗКР', missileRows.reduce((s, a) => s + a.count, 0)],
+               ['Доповідей', reports.length]);
+
+  sheets.push({ name: 'Розхід по типах', rows: summary, widths: [32, 14] });
+  return sheets;
 }
 
 function renderPreview(data) {
