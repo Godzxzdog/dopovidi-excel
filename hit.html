@@ -16,18 +16,18 @@
     <fieldset>
       <legend>1. Період</legend>
       <div class="grid-4">
-        <label>З (час) *<input name="from_time" placeholder="10:14" required></label>
-        <label>З (дата) *<input name="from_date" placeholder="02 листопада 2026 року" required></label>
-        <label>До (час) *<input name="to_time" placeholder="11:20" required></label>
-        <label>До (дата) *<input name="to_date" placeholder="02 листопада 2026 року" required></label>
+        <label>З (час) *<input name="from_time" placeholder="00:00" required></label>
+        <label>З (дата) *<input name="from_date" placeholder="дд.мм.рррр" required></label>
+        <label>До (час) *<input name="to_time" placeholder="00:00" required></label>
+        <label>До (дата) *<input name="to_date" placeholder="дд.мм.рррр" required></label>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>2. Обʼєкт</legend>
-      <label>Назва обʼєкту *<input name="object" placeholder='н.п.Гуменне Електрична підстанція ПС 750 кВ “Вінниця”' required></label>
+      <label>Назва обʼєкту *<input name="object" placeholder="Назва об’єкта" required></label>
       <label class="mt">Уточнення (район, область, перелік ОКІ)
-        <input name="object_note" placeholder="(н.п.Гуменне, Вінницький район, Вінницька область, входить до Переліку ОКІ)">
+        <input name="object_note" placeholder="Район, область, перелік ОКІ">
       </label>
     </fieldset>
 
@@ -35,7 +35,7 @@
       <legend>3. Ціль</legend>
       <div class="grid-2">
         <label>Спрямовано БпЛА *<input name="target_count" type="number" min="0" value="1" required></label>
-        <label>Опис цілі *<input name="target_desc" placeholder="Ціль 8201, “Герань-4”/Шахед-136/реактивний" required></label>
+        <label>Опис цілі *<input name="target_desc" placeholder="Тип цілі, номер" required></label>
       </div>
       <label class="mt">Район пуску
         <input name="launch_area" placeholder="невідомо" value="невідомо">
@@ -45,15 +45,15 @@
     <fieldset>
       <legend>4. Параметри польоту</legend>
       <div class="grid-2">
-        <label>Висота польоту *<input name="altitude" placeholder="до 4500-3000 м" required></label>
-        <label>Швидкість польоту *<input name="speed" placeholder="до 325 км/год" required></label>
+        <label>Висота польоту *<input name="altitude" placeholder="до ____ м" required></label>
+        <label>Швидкість польоту *<input name="speed" placeholder="до ____ км/год" required></label>
       </div>
       <label class="mt">Метеорологічні умови *
         <textarea name="weather" rows="3" required
-          placeholder="Хмарність 6-9 балів верхня, середня, шарувато-купчаста. Нижня межа 300-500 м. Верхня межа 2-3 км. Серпанок. Видимість 6-10 км. Вітер 310-330° 3-6 м/с. Температура +5 ~ +10 °С."></textarea>
+          placeholder="Хмарність, видимість, вітер, температура"></textarea>
       </label>
       <label class="mt">Атака обʼєкту здійснювалась *
-        <input name="attack_dir" placeholder="з Пд-Сх напрямку" required>
+        <input name="attack_dir" placeholder="напрямок" required>
       </label>
     </fieldset>
 
@@ -95,20 +95,20 @@
       </div>
       <label class="mt">Що саме сталося
         <textarea name="hits_text" rows="3"
-          placeholder="10:14 влучання БпЛА (реактивний БпЛА). Було влучання на території ПС 750 «Вінницька», попередньо в вагончик будівельників, ОКІ працює в штатному режимі."></textarea>
+          placeholder="Час, що сталося, наслідки"></textarea>
       </label>
     </fieldset>
 
     <fieldset>
       <legend>8. Причини, що ускладнювали знищення *</legend>
       <textarea name="causes" rows="3" required
-        placeholder="Складні погодні умови не дозволили розрахункам ВГ, МВГ своєчасно виявити та здійснити обстріли швидкісної цілі."></textarea>
+        placeholder="Що завадило знищити ціль"></textarea>
     </fieldset>
 
     <fieldset>
       <legend>9. Прийняті рішення *</legend>
       <textarea name="decisions" rows="3" required
-        placeholder="Здійснити перерозподіл сил та засобів згідно аналіз прольоту цілей"></textarea>
+        placeholder="Які рішення прийнято"></textarea>
     </fieldset>
 
     <div class="row sticky-row">
