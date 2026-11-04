@@ -5,15 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Зведення → шаблон</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="summary.css">
 </head>
 <body>
-<header>
-  <h1>Зведення → шаблон</h1>
-  <span class="sub">встав текст зведення — отримай готовий рапорт</span>
-  <nav class="nav"><a href="index.html">← Доповіді → Excel</a></nav>
-</header>
-
 <main>
   <label class="sr-only" for="src">Текст зведення</label>
   <textarea id="src" spellcheck="false"
@@ -52,5 +47,7 @@
 </main>
 
 <script src="summary.js"></script>
+<script src="shell.js"></script>
+<script>initShell({ active: 'summary' });</script>
 </body>
 </html>

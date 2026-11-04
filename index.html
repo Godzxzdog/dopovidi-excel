@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Доповіді → Excel</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shell.css">
 </head>
 <body>
-<header>
-  <h1>Доповіді → Excel</h1>
-  <span class="sub">встав текст пачкою — отримай файл</span>
-</header>
-
 <main>
   <label class="sr-only" for="t">Текст доповідей</label>
   <textarea id="t" spellcheck="false"
@@ -49,5 +45,7 @@
 </main>
 
 <script src="app.js"></script>
+<script src="shell.js"></script>
+<script>initShell({ active: 'excel' });</script>
 </body>
 </html>

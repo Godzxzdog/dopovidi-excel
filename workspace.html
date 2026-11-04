@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Робоче місце помічника чергового</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="home.css">
+</head>
+<body>
+<main class="home">
+  <h1>Робоче місце помічника чергового</h1>
+  <p class="lead">Обери розділ — перемикатись можна вкладками вгорі або клавішами <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>.</p>
+
+  <div class="cards">
+    <a class="card" href="form.html">
+      <span class="card-num">1</span>
+      <h2>Шаблонізатор</h2>
+      <p>Заповни поля — отримай готовий текст доповіді за добу.</p>
+      <span class="card-go">Відкрити →</span>
+    </a>
+    <a class="card" href="summary.html">
+      <span class="card-num">2</span>
+      <h2>Зведення</h2>
+      <p>Встав текст зведення — отримай його у стандартному вигляді.</p>
+      <span class="card-go">Відкрити →</span>
+    </a>
+    <a class="card" href="index.html">
+      <span class="card-num">3</span>
+      <h2>Доповіді → Excel</h2>
+      <p>Встав пачку доповідей — отримай XLSX з аркушами.</p>
+      <span class="card-go">Відкрити →</span>
+    </a>
+  </div>
+</main>
+
+<script src="shell.js"></script>
+<script>initShell({ active: '' });</script>
+</body>
+</html>

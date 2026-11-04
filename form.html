@@ -5,19 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Шаблонізатор доповіді</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="summary.css">
 <link rel="stylesheet" href="form.css">
 </head>
 <body>
-<header>
-  <h1>Шаблонізатор доповіді</h1>
-  <span class="sub">заповни поля — отримай готовий текст</span>
-  <nav class="nav">
-    <a href="index.html">Доповіді → Excel</a>
-    <a href="summary.html">Зведення → шаблон</a>
-  </nav>
-</header>
-
 <main>
   <form id="f" class="form" autocomplete="off">
 
@@ -117,5 +109,7 @@
 </main>
 
 <script src="builder.js"></script>
+<script src="shell.js"></script>
+<script>initShell({ active: 'form' });</script>
 </body>
 </html>

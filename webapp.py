@@ -37,6 +37,11 @@ STATIC_FILES = {
     "form.js": "application/javascript; charset=utf-8",
     "form.css": "text/css; charset=utf-8",
     "builder.js": "application/javascript; charset=utf-8",
+    "workspace.html": "text/html; charset=utf-8",
+    "index.html": "text/html; charset=utf-8",
+    "home.css": "text/css; charset=utf-8",
+    "shell.js": "application/javascript; charset=utf-8",
+    "shell.css": "text/css; charset=utf-8",
 }
 
 
@@ -222,12 +227,10 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_GET(self):
-        if self.path in ("/", "/index.html"):
-            self._send(200, "text/html; charset=utf-8", PAGE.encode("utf-8"))
-            return
-
         # static files next to this script
         name = os.path.basename(urllib.parse.urlparse(self.path).path)
+        if name in ("", "/"):
+            name = "workspace.html"
         if name in STATIC_FILES:
             path = os.path.join(HERE, name)
             with open(path, "rb") as f:

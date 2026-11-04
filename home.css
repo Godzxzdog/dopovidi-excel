@@ -1,0 +1,48 @@
+/* Entry page: three cards linking to the workspace sections. */
+
+.home { max-width: 1000px; padding: 48px 24px 60px; }
+.home h1 { font-size: 24px; margin: 0 0 8px; font-weight: 650; }
+.lead { color: #7f8b9c; font-size: 14px; margin: 0 0 30px; line-height: 1.6; }
+
+kbd {
+  background: #1a212a;
+  border: 1px solid #2b333d;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: ui-monospace, Menlo, monospace;
+  color: #9ec1ff;
+}
+
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.card {
+  position: relative;
+  display: block;
+  padding: 20px 20px 18px;
+  border: 1px solid #232a33;
+  border-radius: 12px;
+  background: #0e1216;
+  text-decoration: none;
+  color: #e6e9ef;
+  transition: border-color .15s, background .15s, transform .15s;
+}
+
+.card:hover { border-color: #3d7eff; background: #101721; transform: translateY(-1px); }
+
+.card h2 { font-size: 15px; margin: 0 0 6px; font-weight: 650; }
+.card p { font-size: 13px; color: #7f8b9c; margin: 0 0 14px; line-height: 1.55; }
+
+.card-num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: #16243b;
+  color: #7fa6e0;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card-go { font-size: 12.5px; font-weight: 600; color: #3d7eff; }
