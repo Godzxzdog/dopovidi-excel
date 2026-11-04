@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Доповідь про влучання</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="summary.css">
+<link rel="stylesheet" href="form.css">
+</head>
+<body>
+<main>
+  <form id="f" class="form" autocomplete="off">
+
+    <fieldset>
+      <legend>Період</legend>
+      <div class="grid-4">
+        <label>З (час)<input name="from_time" placeholder="09:29" required></label>
+        <label>З (дата)<input name="from_date" placeholder="04 листопада 2026 року" required></label>
+        <label>До (час)<input name="to_time" placeholder="10:09" required></label>
+        <label>До (дата)<input name="to_date" placeholder="04 листопада 2026 року" required></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Обʼєкт і ціль</legend>
+      <label>Обʼєкт<input name="object" placeholder='ПС 110 КВ "Південна"' required></label>
+      <div class="grid-2 mt">
+        <label>Спрямовано — кількість БпЛА<input name="target_count" type="number" min="0" value="1"></label>
+        <label>Опис цілі<input name="target_desc" placeholder="8254 - реактивний ударний дрон"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Параметри польоту</legend>
+      <div class="grid-2">
+        <label>Район пуску<input name="launch_area" placeholder="—"></label>
+        <label>Висота польоту<input name="altitude" placeholder="до 1000 м"></label>
+      </div>
+      <label class="mt">Швидкість польоту<input name="speed" placeholder="до 325 км/год"></label>
+      <label class="mt">Метеорологічні умови
+        <textarea name="weather" rows="3" placeholder="Хмарність 7-10 балів... вітер 360-020° 3-6 м/с. Температура +4 ~ +9 °С."></textarea>
+      </label>
+      <label class="mt">Атака обʼєкту здійснювалась<input name="attack_dir" placeholder="з південного напрямку"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Результат</legend>
+      <div class="grid-3">
+        <label>Знищено/подавлено<input name="destroyed" type="number" min="0" value="0"></label>
+        <label>РЛВ<input name="rlv" type="number" min="0" value="0"></label>
+        <label>БпЛА-перехоплювачів<input name="interceptors" type="number" min="0" value="0"></label>
+      </div>
+      <div class="grid-3 mt">
+        <label>Тактична авіація<input name="aviation" type="number" min="0" value="0"></label>
+        <label>Застосувань МВГ<input name="mvg" type="number" min="0" value="0"></label>
+        <label>Застосувань ПЗРК<input name="manpads" type="number" min="0" value="0"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Залучені сили</legend>
+      <div id="forces" class="rows"></div>
+      <button type="button" class="ghost small" data-add="forces">+ додати рядок</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Падіння</legend>
+      <label>Опис падіння (порожньо — рядок не виводиться)
+        <textarea name="fall" rows="2" placeholder="Падіння – 1 БпЛА на територію гаражного кооперативу..."></textarea>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Уточнена інформація</legend>
+      <label>Подія
+        <textarea name="event" rows="3" placeholder="м. Вінниця, вул. Пирогова 131 А - загорання гаражів..."></textarea>
+      </label>
+      <label class="mt">Ліквідація<input name="extinguish" placeholder="10:07 - пожежу ліквідовано"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Висновки</legend>
+      <label>Причини, що ускладнювали знищення
+        <textarea name="causes" rows="2" placeholder="Погодні умови, низька видимість..."></textarea>
+      </label>
+      <label class="mt">Прийняті рішення
+        <textarea name="decisions" rows="2" placeholder="Здійснити перерозподіл сил та засобів..."></textarea>
+      </label>
+    </fieldset>
+
+    <div class="row sticky-row">
+      <button type="button" id="build">Сформувати</button>
+      <button type="button" class="ghost" id="copy">Копіювати</button>
+      <button type="button" class="ghost" id="dl">Завантажити .txt</button>
+      <button type="reset" class="ghost" id="reset">Очистити</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </form>
+
+  <h2 class="out-title">Готова доповідь</h2>
+  <pre id="out" class="report"></pre>
+</main>
+
+<script src="hit.js"></script>
+<script src="shell.js"></script>
+<script>initShell({ active: 'hit' });</script>
+</body>
+</html>

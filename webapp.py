@@ -42,6 +42,8 @@ STATIC_FILES = {
     "home.css": "text/css; charset=utf-8",
     "shell.js": "application/javascript; charset=utf-8",
     "shell.css": "text/css; charset=utf-8",
+    "hit.html": "text/html; charset=utf-8",
+    "hit.js": "application/javascript; charset=utf-8",
 }
 
 
