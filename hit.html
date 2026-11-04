@@ -14,80 +14,101 @@
   <form id="f" class="form" autocomplete="off">
 
     <fieldset>
-      <legend>Період</legend>
+      <legend>1. Період</legend>
       <div class="grid-4">
-        <label>З (час)<input name="from_time" placeholder="09:29" required></label>
-        <label>З (дата)<input name="from_date" placeholder="04 листопада 2026 року" required></label>
-        <label>До (час)<input name="to_time" placeholder="10:09" required></label>
-        <label>До (дата)<input name="to_date" placeholder="04 листопада 2026 року" required></label>
+        <label>З (час) *<input name="from_time" placeholder="10:14" required></label>
+        <label>З (дата) *<input name="from_date" placeholder="02 листопада 2026 року" required></label>
+        <label>До (час) *<input name="to_time" placeholder="11:20" required></label>
+        <label>До (дата) *<input name="to_date" placeholder="02 листопада 2026 року" required></label>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend>Обʼєкт і ціль</legend>
-      <label>Обʼєкт<input name="object" placeholder='ПС 110 КВ "Південна"' required></label>
-      <div class="grid-2 mt">
-        <label>Спрямовано — кількість БпЛА<input name="target_count" type="number" min="0" value="1"></label>
-        <label>Опис цілі<input name="target_desc" placeholder="8254 - реактивний ударний дрон"></label>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Параметри польоту</legend>
-      <div class="grid-2">
-        <label>Район пуску<input name="launch_area" placeholder="—"></label>
-        <label>Висота польоту<input name="altitude" placeholder="до 1000 м"></label>
-      </div>
-      <label class="mt">Швидкість польоту<input name="speed" placeholder="до 325 км/год"></label>
-      <label class="mt">Метеорологічні умови
-        <textarea name="weather" rows="3" placeholder="Хмарність 7-10 балів... вітер 360-020° 3-6 м/с. Температура +4 ~ +9 °С."></textarea>
+      <legend>2. Обʼєкт</legend>
+      <label>Назва обʼєкту *<input name="object" placeholder='н.п.Гуменне Електрична підстанція ПС 750 кВ “Вінниця”' required></label>
+      <label class="mt">Уточнення (район, область, перелік ОКІ)
+        <input name="object_note" placeholder="(н.п.Гуменне, Вінницький район, Вінницька область, входить до Переліку ОКІ)">
       </label>
-      <label class="mt">Атака обʼєкту здійснювалась<input name="attack_dir" placeholder="з південного напрямку"></label>
     </fieldset>
 
     <fieldset>
-      <legend>Результат</legend>
-      <div class="grid-3">
-        <label>Знищено/подавлено<input name="destroyed" type="number" min="0" value="0"></label>
-        <label>РЛВ<input name="rlv" type="number" min="0" value="0"></label>
-        <label>БпЛА-перехоплювачів<input name="interceptors" type="number" min="0" value="0"></label>
+      <legend>3. Ціль</legend>
+      <div class="grid-2">
+        <label>Спрямовано БпЛА *<input name="target_count" type="number" min="0" value="1" required></label>
+        <label>Опис цілі *<input name="target_desc" placeholder="Ціль 8201, “Герань-4”/Шахед-136/реактивний" required></label>
+      </div>
+      <label class="mt">Район пуску
+        <input name="launch_area" placeholder="невідомо" value="невідомо">
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Параметри польоту</legend>
+      <div class="grid-2">
+        <label>Висота польоту *<input name="altitude" placeholder="до 4500-3000 м" required></label>
+        <label>Швидкість польоту *<input name="speed" placeholder="до 325 км/год" required></label>
+      </div>
+      <label class="mt">Метеорологічні умови *
+        <textarea name="weather" rows="3" required
+          placeholder="Хмарність 6-9 балів верхня, середня, шарувато-купчаста. Нижня межа 300-500 м. Верхня межа 2-3 км. Серпанок. Видимість 6-10 км. Вітер 310-330° 3-6 м/с. Температура +5 ~ +10 °С."></textarea>
+      </label>
+      <label class="mt">Атака обʼєкту здійснювалась *
+        <input name="attack_dir" placeholder="з Пд-Сх напрямку" required>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Результат знищення</legend>
+      <div class="grid-2">
+        <label>Знищено/подавлено — БпЛА *<input name="destroyed" type="number" min="0" value="0" required></label>
+        <label>Локаційно втрачених — БпЛА *<input name="lost" type="number" min="0" value="0" required></label>
       </div>
       <div class="grid-3 mt">
+        <label>БпЛА-перехоплювачів *<input name="interceptors" type="number" min="0" value="0" required></label>
+        <label>Застосувань МВГ *<input name="mvg" type="number" min="0" value="0" required></label>
+        <label>Переміщень МВГ<input name="mvg_moves" type="number" min="0" value="0"></label>
+      </div>
+      <div class="grid-3 mt">
+        <label>РЛВ<input name="rlv" type="number" min="0" value="0"></label>
         <label>Тактична авіація<input name="aviation" type="number" min="0" value="0"></label>
-        <label>Застосувань МВГ<input name="mvg" type="number" min="0" value="0"></label>
         <label>Застосувань ПЗРК<input name="manpads" type="number" min="0" value="0"></label>
       </div>
     </fieldset>
 
     <fieldset>
-      <legend>Залучені сили</legend>
+      <legend>6. До протиповітряного прикриття обʼєкта було залучено *</legend>
       <div id="forces" class="rows"></div>
       <button type="button" class="ghost small" data-add="forces">+ додати рядок</button>
     </fieldset>
 
     <fieldset>
-      <legend>Падіння</legend>
-      <label>Опис падіння (порожньо — рядок не виводиться)
-        <textarea name="fall" rows="2" placeholder="Падіння – 1 БпЛА на територію гаражного кооперативу..."></textarea>
+      <legend>7. Влучання, падіння уламків</legend>
+      <div class="grid-2">
+        <label>Кількість БпЛА<input name="hits" type="number" min="0" value="0"></label>
+        <label>Формулювання рядка
+          <select name="hits_label">
+            <option value="Влучання, Падіння уламків">Влучання, Падіння уламків</option>
+            <option value="Влучання">Влучання</option>
+            <option value="Падіння уламків">Падіння уламків</option>
+          </select>
+        </label>
+      </div>
+      <label class="mt">Що саме сталося
+        <textarea name="hits_text" rows="3"
+          placeholder="10:14 влучання БпЛА (реактивний БпЛА). Було влучання на території ПС 750 «Вінницька», попередньо в вагончик будівельників, ОКІ працює в штатному режимі."></textarea>
       </label>
     </fieldset>
 
     <fieldset>
-      <legend>Уточнена інформація</legend>
-      <label>Подія
-        <textarea name="event" rows="3" placeholder="м. Вінниця, вул. Пирогова 131 А - загорання гаражів..."></textarea>
-      </label>
-      <label class="mt">Ліквідація<input name="extinguish" placeholder="10:07 - пожежу ліквідовано"></label>
+      <legend>8. Причини, що ускладнювали знищення *</legend>
+      <textarea name="causes" rows="3" required
+        placeholder="Складні погодні умови не дозволили розрахункам ВГ, МВГ своєчасно виявити та здійснити обстріли швидкісної цілі."></textarea>
     </fieldset>
 
     <fieldset>
-      <legend>Висновки</legend>
-      <label>Причини, що ускладнювали знищення
-        <textarea name="causes" rows="2" placeholder="Погодні умови, низька видимість..."></textarea>
-      </label>
-      <label class="mt">Прийняті рішення
-        <textarea name="decisions" rows="2" placeholder="Здійснити перерозподіл сил та засобів..."></textarea>
-      </label>
+      <legend>9. Прийняті рішення *</legend>
+      <textarea name="decisions" rows="3" required
+        placeholder="Здійснити перерозподіл сил та засобів згідно аналіз прольоту цілей"></textarea>
     </fieldset>
 
     <div class="row sticky-row">

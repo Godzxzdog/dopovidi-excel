@@ -1,23 +1,22 @@
-/* Hit report builder: form fields -> "Доповідь про влучання".
+/* Hit report builder: form fields -> "Довідка про влучання".
  *
- * Layout mirrors the unit's Word template: right-aligned period block, bold
- * object heading, indented numbered body, then free sections at the end.
+ * Layout follows the unit's Word template: object heading centred with an
+ * optional note line under it, indented body, forces list, then conclusions.
+ * Optional lines appear only when their field is filled in.
  */
 
 'use strict';
 
 const el = id => document.getElementById(id);
 
-const IND = '        ';          // 8 spaces before МВГ / ПЗРК lines
-const IND2 = '      ';           // 6 spaces before "По маршруту..."
-const PERIOD_PAD = '                                                                      ';
+const IND = '           ';      // indentation inside "Здійснено:"
 
 function addRow(containerId, value = '') {
   const box = el(containerId);
   const wrap = document.createElement('div');
   wrap.innerHTML = `<div class="rowline">
       <input type="text" value="${value.replace(/"/g, '&quot;')}"
-             placeholder="МВГ озброєння ВКК (SkySentinel)" class="grow" data-k="text">
+             placeholder="31 мобільних вогневих груп, озброєних: ЗУ-23-2 - 3 од. ..." class="grow" data-k="text">
       <button type="button" class="del" title="видалити">×</button>
     </div>`.trim();
   const node = wrap.firstElementChild;
@@ -46,55 +45,53 @@ function num(v) {
 function build(d) {
   const out = [];
 
-  // ---- period block, right aligned in the original
-  out.push(PERIOD_PAD + 'За період');
-  out.push(PERIOD_PAD + `З ${d.from_time} ${d.from_date}`);
-  out.push(PERIOD_PAD + `до ${d.to_time} ${d.to_date}`);
+  // ---- 1. period
+  out.push(`За період з ${d.from_time} ${d.from_date}`);
+  out.push(`до ${d.to_time} ${d.to_date}`);
 
-  // ---- object heading
+  // ---- 2. object + optional note
   out.push('');
   out.push(d.object);
+  if (d.object_note) out.push(d.object_note);
 
-  // ---- target
-  const targetLine = d.target_count > 0
+  // ---- 3. target
+  const target = d.target_count > 0
     ? `В напрямку об’єкту спрямовано: ${d.target_count} БпЛА`
       + (d.target_desc ? ` (${d.target_desc})` : '')
-    : 'В напрямку об’єкту спрямовано: —';
-  out.push(targetLine);
-  out.push(`Район пуску: ${d.launch_area || '.'}`);
+    : `В напрямку об’єкту спрямовано: —`;
+  out.push(target);
+  out.push(`Район пуску: ${d.launch_area || 'невідомо'}`);
 
-  if (d.altitude) out.push(`Висота польоту: ${d.altitude};`);
-  if (d.speed) out.push(`Швидкість польоту: ${d.speed}`);
-  if (d.weather) out.push(`Метеорологічні умови: ${d.weather}`);
-  if (d.attack_dir) out.push(`Атака об’єкту здійснювалась: ${d.attack_dir}.`);
+  // ---- 4. flight parameters
+  out.push(`Висота польоту: ${d.altitude};`);
+  out.push(`Швидкість польоту: ${d.speed}`);
+  out.push(`Метеорологічні умови: ${d.weather}`);
+  out.push(`Атака об’єкту здійснювалась: ${d.attack_dir}.`);
 
-  // ---- result
-  out.push(`Знищено/подавлено – ${d.destroyed}`);
-  out.push(`РЛВ – ${d.rlv} ;`);
+  // ---- 5. destruction result
+  out.push(`Знищено/подавлено – ${d.destroyed} БпЛА`);
   out.push('Здійснено:');
   out.push(`застосування БпЛА-перехоплювачів – ${d.interceptors};`);
-  out.push(`застосування тактичної авіації – ${d.aviation}.`);
-  out.push(`${IND}застосувань МВГ – ${d.mvg}`);
-  out.push(`${IND}застосувань ПЗРК – ${d.manpads}`);
+  out.push(`застосувань МВГ – ${d.mvg};`);
+  if (d.mvg_moves !== null) {
+    out.push(`переміщень МВГ – ${d.mvg_moves} МВГ,`);
+  }
+  if (d.rlv !== null) out.push(`РЛВ – ${d.rlv} ;`);
+  if (d.aviation !== null) out.push(`застосування тактичної авіації – ${d.aviation}.`);
+  if (d.manpads !== null) out.push(`застосувань ПЗРК – ${d.manpads}`);
+  out.push(`Локаційно втрачених – ${d.lost} БпЛА.`);
 
-  // ---- forces
-  if (d.forces.length) {
-    out.push(`${IND2}По маршруту до об’єкта було залучено:`);
-    for (const f of d.forces) out.push(f);
+  // ---- 6. air-defence cover
+  out.push('До протиповітряного прикриття об’єкта було залучено:');
+  for (const f of d.forces) out.push(f);
+
+  // ---- 7. hits and debris
+  if (d.hits > 0) {
+    out.push(`${d.hits_label} – ${d.hits} БпЛА`);
+    if (d.hits_text) out.push(d.hits_text);
   }
 
-  // ---- fall
-  if (d.fall) out.push(d.fall);
-
-  // ---- clarifications
-  if (d.event || d.extinguish) {
-    out.push('Уточнена інформація:');
-    out.push('ПОДІЯ В НАСЛІДОК ВОРОЖОЇ АТАКИ');
-    if (d.event) out.push(d.event);
-    if (d.extinguish) out.push(d.extinguish);
-  }
-
-  // ---- conclusions
+  // ---- 8-9. conclusions
   if (d.causes) {
     out.push('Причини, що ускладнювали знищення:');
     out.push(d.causes);
@@ -111,6 +108,8 @@ function collect() {
   const f = el('f');
   const val = n => (f.elements[n] ? f.elements[n].value.trim() : '');
   const int = n => num(val(n));
+  // optional numbers: empty field -> null so the line is omitted
+  const opt = n => (val(n) === '' ? null : num(val(n)));
 
   return {
     from_time: val('from_time'),
@@ -118,6 +117,7 @@ function collect() {
     to_time: val('to_time'),
     to_date: val('to_date'),
     object: val('object'),
+    object_note: val('object_note'),
     target_count: int('target_count'),
     target_desc: val('target_desc'),
     launch_area: val('launch_area'),
@@ -126,15 +126,17 @@ function collect() {
     weather: val('weather').replace(/\s+/g, ' '),
     attack_dir: val('attack_dir'),
     destroyed: int('destroyed'),
-    rlv: int('rlv'),
+    lost: int('lost'),
     interceptors: int('interceptors'),
-    aviation: int('aviation'),
     mvg: int('mvg'),
-    manpads: int('manpads'),
+    mvg_moves: opt('mvg_moves'),
+    rlv: opt('rlv'),
+    aviation: opt('aviation'),
+    manpads: opt('manpads'),
     forces: readRows('forces'),
-    fall: val('fall'),
-    event: val('event'),
-    extinguish: val('extinguish'),
+    hits: int('hits'),
+    hits_label: val('hits_label') || 'Влучання, Падіння уламків',
+    hits_text: val('hits_text'),
     causes: val('causes'),
     decisions: val('decisions'),
   };
@@ -166,7 +168,7 @@ function downloadOut() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'dopovid-vluchannia.txt';
+  a.download = 'dovidka-vluchannia.txt';
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -174,8 +176,8 @@ function downloadOut() {
 }
 
 if (el('forces')) {
-  addRow('forces', 'МВГ озброєння ВКК (SkySentinel)');
-  addRow('forces', 'ВГ озброєння ПЗРК Ігла 1');
+  addRow('forces', '31 мобільних вогневих (вогневих) груп, озброєних: ЗУ-23-2 - 3 од., ЗПУ-2 – 1 од., ПЗРК - 2 од., НР-30 - 2 од., ГШ-23 - 6 од., ВКК - 17 од., Gepard – 1 од.');
+  addRow('forces', '0 екіпажів БпЛА перехоплювачів.');
 
   el('build').addEventListener('click', run);
   el('copy').addEventListener('click', copyOut);
