@@ -17,9 +17,21 @@
       <legend>1. Період</legend>
       <div class="grid-4">
         <label>З (час) *<input name="from_time" placeholder="00:00" required></label>
-        <label>З (дата) *<input name="from_date" placeholder="дд.мм.рррр" required></label>
+        <div class="dateline">
+          <span class="dl-label">З (дата) *</span>
+          <select name="from_day" required><option value="">дд</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+          <select name="from_month" required><option value="">місяць</option><option value="1">січня</option><option value="2">лютого</option><option value="3">березня</option><option value="4">квітня</option><option value="5">травня</option><option value="6">червня</option><option value="7">липня</option><option value="8">серпня</option><option value="9">вересня</option><option value="10">жовтня</option><option value="11">листопада</option><option value="12">грудня</option></select>
+          <select name="from_year" required><option value="">рррр</option><option>2025</option><option>2026</option><option>2027</option></select>
+          <span class="dl-suffix">року</span>
+        </div>
         <label>До (час) *<input name="to_time" placeholder="00:00" required></label>
-        <label>До (дата) *<input name="to_date" placeholder="дд.мм.рррр" required></label>
+        <div class="dateline">
+          <span class="dl-label">До (дата) *</span>
+          <select name="to_day" required><option value="">дд</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+          <select name="to_month" required><option value="">місяць</option><option value="1">січня</option><option value="2">лютого</option><option value="3">березня</option><option value="4">квітня</option><option value="5">травня</option><option value="6">червня</option><option value="7">липня</option><option value="8">серпня</option><option value="9">вересня</option><option value="10">жовтня</option><option value="11">листопада</option><option value="12">грудня</option></select>
+          <select name="to_year" required><option value="">рррр</option><option>2025</option><option>2026</option><option>2027</option></select>
+          <span class="dl-suffix">року</span>
+        </div>
       </div>
     </fieldset>
 
@@ -35,7 +47,26 @@
       <legend>3. Ціль</legend>
       <div class="grid-2">
         <label>Спрямовано БпЛА *<input name="target_count" type="number" min="0" value="1" required></label>
-        <label>Опис цілі *<input name="target_desc" placeholder="Тип цілі, номер" required></label>
+        <div>
+          <label>Тип цілі *</label>
+          <select name="target_type" required>
+            <option value="">оберіть тип</option>
+              <option value="Герань">Герань</option>
+              <option value="Герань (реактивний)">Герань (реактивний)</option>
+              <option value="Гербера">Гербера</option>
+              <option value="Пародія">Пародія</option>
+              <option value="Ланцет">Ланцет</option>
+              <option value="Бандероль">Бандероль</option>
+              <option value="Шахед-136">Шахед-136</option>
+              <option value="Шахед-131">Шахед-131</option>
+              <option value="Крилата ракета">Крилата ракета</option>
+              <option value="Невідомий">Невідомий</option>
+          </select>
+        </div>
+        <div>
+          <label>Номер цілі</label>
+          <input name="target_no" placeholder="номер">
+        </div>
       </div>
       <label class="mt">Район пуску
         <input name="launch_area" placeholder="невідомо" value="невідомо">

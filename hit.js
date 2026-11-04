@@ -9,7 +9,16 @@
 
 const el = id => document.getElementById(id);
 
-const IND = '           ';      // indentation inside "Здійснено:"
+const IND = '           ';
+const MONTHS = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+                'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+
+// "Ціль 8201, Герань (реактивний)" / "Герань (реактивний)"
+function targetText(type, no) {
+  if (!type) return no || '';
+  return no ? `Ціль ${no}, ${type}` : type;
+}
+      // indentation inside "Здійснено:"
 
 function addRow(containerId, value = '') {
   const box = el(containerId);
@@ -108,18 +117,27 @@ function collect() {
   const f = el('f');
   const val = n => (f.elements[n] ? f.elements[n].value.trim() : '');
   const int = n => num(val(n));
+
+  // "02 листопада 2026 року" — assembled from day / month / year selects
+  const dateText = (prefix) => {
+    const day = val(prefix + '_day');
+    const monthNum = parseInt(val(prefix + '_month'), 10);
+    const year = val(prefix + '_year');
+    if (!day || !monthNum || !year) return '';
+    return `${day} ${MONTHS[monthNum - 1]} ${year} року`;
+  };
   // optional numbers: empty field -> null so the line is omitted
   const opt = n => (val(n) === '' ? null : num(val(n)));
 
   return {
     from_time: val('from_time'),
-    from_date: val('from_date'),
+    from_date: dateText('from'),
     to_time: val('to_time'),
-    to_date: val('to_date'),
+    to_date: dateText('to'),
     object: val('object'),
     object_note: val('object_note'),
     target_count: int('target_count'),
-    target_desc: val('target_desc'),
+    target_desc: targetText(val('target_type'), val('target_no')),
     launch_area: val('launch_area'),
     altitude: val('altitude'),
     speed: val('speed'),

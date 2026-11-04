@@ -127,3 +127,28 @@ button.small {
 .report:empty { display: none; }
 
 .nav { display: flex; gap: 14px; }
+/* Strict date input: day / month / year selects forming "02 листопада 2026 року" */
+.dateline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+
+.dateline select {
+  width: auto;
+  margin-top: 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid #2b333d;
+  background: #0c0f13;
+  color: #dfe5ee;
+  font-size: 13.5px;
+  font-family: inherit;
+}
+
+.dateline select:focus { outline: none; border-color: #3d7eff; }
+
+.dl-label { font-size: 12.5px; color: #8fa0b6; margin-right: 4px; }
+.dl-suffix { font-size: 12.5px; color: #7f8b9c; }
