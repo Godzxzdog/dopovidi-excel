@@ -9,7 +9,6 @@
 const SHELL_TABS = [
   { id: 'form',    href: 'form.html',    label: 'Шаблонізатор', hint: 'поля → текст' },
   { id: 'summary', href: 'summary.html', label: 'Зведення',     hint: 'текст → рапорт' },
-  // { id: 'hit',  href: 'hit.html',  label: 'Влучання',  hint: 'поля → доповідь' },  // приховано за проханням
   { id: 'excel',   href: 'index.html',   label: 'Застосування', hint: 'пачка → Excel' },
 ];
 
