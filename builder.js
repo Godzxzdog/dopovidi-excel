@@ -153,6 +153,10 @@ function build(d) {
     out.push('');
     out.push(`Уражено об’єктів критичної інфраструктури - ${d.ci_count} об’єкт:`);
     if (d.ci_text) out.push(d.ci_text.replace(/\s+/g, ' ').trim());
+  } else {
+    // Nothing hit: keep the heading so the report still states it explicitly.
+    out.push('');
+    out.push('Уражено об’єктів критичної інфраструктури');
   }
 
   out.push('');
