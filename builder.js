@@ -64,6 +64,16 @@ function num(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+// Ukrainian plural for "раз": 1 раз, 2-4 рази, 5+ разів.
+function timesWord(n) {
+  const abs = Math.abs(n) % 100;
+  const last = abs % 10;
+  if (abs >= 11 && abs <= 14) return 'разів';
+  if (last === 1) return 'раз';
+  if (last >= 2 && last <= 4) return 'рази';
+  return 'разів';
+}
+
 function pluralUav(n, form) {
   // form: 'ударних БпЛА' etc. — kept literal; only the prefix number changes.
   return `${n} - ${form}`;
@@ -133,7 +143,8 @@ function build(d) {
   }
 
   if (d.weapon_uses > 0) {
-    out.push(`Підрозділи ${zoneQ} застосовували зброю - ${d.weapon_uses} разів.`);
+    out.push(`Підрозділи ${zoneQ} застосовували зброю - `
+      + `${d.weapon_uses} ${timesWord(d.weapon_uses)}.`);
   }
 
   if (d.weapons) out.push(`Застосовувалась зброя: ${d.weapons}`);
