@@ -28,7 +28,7 @@ function rowHtml(kind, a, b) {
   </div>`;
 }
 
-function addRow(containerId, a, b) {
+function addRow(containerId, a = 0, b = '') {
   const box = el(containerId);
   const wrap = document.createElement('div');
   wrap.innerHTML = rowHtml(containerId, a, b).trim();
@@ -224,13 +224,13 @@ function downloadOut() {
 
 // seed rows so the page opens with a usable shape
 if (el('uav_forces')) {
-  addRow('uav_forces', 2, 'силами ТГр ППО «Вінниця»');
-  addRow('uav_forces', 8, 'силами армійської авіації');
-  addRow('cr_forces', 5, 'силами ТГр ППО «Вінниця»');
-  addRow('cr_forces', 1, 'силами армійської авіації');
-  addRow('left_regions', 6, 'Житомирську');
-  addRow('left_regions', 3, 'Хмельницьку');
-  addRow('left_regions', 1, 'Чернівецька');
+  addRow('uav_forces', 0, 'силами ТГр ППО «Вінниця»');
+  addRow('uav_forces', 0, 'силами армійської авіації');
+  addRow('cr_forces', 0, 'силами ТГр ППО «Вінниця»');
+  addRow('cr_forces', 0, 'силами армійської авіації');
+  addRow('left_regions', 0, 'Житомирську');
+  addRow('left_regions', 0, 'Хмельницьку');
+  addRow('left_regions', 0, 'Чернівецька');
 
   el('build').addEventListener('click', run);
   el('copy').addEventListener('click', copyOut);
