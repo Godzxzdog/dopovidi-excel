@@ -116,8 +116,6 @@ function build(d) {
     if (!byCr.length) out[out.length - 1] = out[out.length - 1].replace(/:$/, '.');
   }
 
-  if (d.weapons) out.push(`Застосовувалась зброя: ${d.weapons}`);
-
   const regions = d.left_regions.filter(r => num(r.count) > 0 && r.region);
   if (d.left_total > 0 || regions.length) {
     const parts = regions.map(r => `${num(r.count)} - в ${r.region} область`);
@@ -134,6 +132,8 @@ function build(d) {
   if (d.weapon_uses > 0) {
     out.push(`Підрозділи ${zoneQ} застосовували зброю - ${d.weapon_uses} разів.`);
   }
+
+  if (d.weapons) out.push(`Застосовувалась зброя: ${d.weapons}`);
 
   if (d.ci_count > 0) {
     out.push('');
