@@ -9,7 +9,7 @@
 const SHELL_TABS = [
   { id: 'form',    href: 'form.html',    label: 'Шаблонізатор', hint: 'поля → текст' },
   { id: 'summary', href: 'summary.html', label: 'Зведення',     hint: 'текст → рапорт' },
-  { id: 'excel',   href: 'index.html',   label: 'Доповіді',     hint: 'пачка → Excel' },
+  { id: 'excel',   href: 'index.html',   label: 'Застосування', hint: 'пачка → Excel' },
 ];
 
 function initShell(opts) {
