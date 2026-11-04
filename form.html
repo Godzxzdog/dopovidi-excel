@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Шаблонізатор доповіді</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="summary.css">
+<link rel="stylesheet" href="form.css">
+</head>
+<body>
+<header>
+  <h1>Шаблонізатор доповіді</h1>
+  <span class="sub">заповни поля — отримай готовий текст</span>
+  <nav class="nav">
+    <a href="index.html">Доповіді → Excel</a>
+    <a href="summary.html">Зведення → шаблон</a>
+  </nav>
+</header>
+
+<main>
+  <form id="f" class="form" autocomplete="off">
+
+    <fieldset>
+      <legend>Період і зона</legend>
+      <div class="grid-4">
+        <label>З (час)<input name="from_time" placeholder="06:00" value="06:00" required></label>
+        <label>З (дата)<input name="from_date" placeholder="02.11.2026" required></label>
+        <label>До (час)<input name="to_time" placeholder="06:00" value="06:00" required></label>
+        <label>До (дата)<input name="to_date" placeholder="03.11.2026" required></label>
+      </div>
+      <label class="mt">Зона відповідальності
+        <input name="zone" placeholder="ТГр ППО “Вінниця”" value="ТГр ППО “Вінниця”" required>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Застосовано противником</legend>
+      <div class="grid-3">
+        <label>Крилатих ракет<input name="applied_cruise" type="number" min="0" value="0"></label>
+        <label>Ударних БпЛА<input name="applied_uav" type="number" min="0" value="0"></label>
+        <label>З них реактивних<input name="applied_uav_reactive" type="number" min="0" value="0"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Знищено</legend>
+      <div class="grid-2">
+        <label>Ударних БпЛА всього<input name="destroyed_uav" type="number" min="0" value="0"></label>
+        <label>Крилатих ракет всього<input name="destroyed_cruise" type="number" min="0" value="0"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Знищено по силах — БпЛА</legend>
+      <div id="uav_forces" class="rows"></div>
+      <button type="button" class="ghost small" data-add="uav_forces">+ додати рядок</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Знищено по силах — крилаті ракети</legend>
+      <div id="cr_forces" class="rows"></div>
+      <button type="button" class="ghost small" data-add="cr_forces">+ додати рядок</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Зброя та інше</legend>
+      <label>Застосовувалась зброя (через кому)
+        <input name="weapons" placeholder="Gepard 1A2, Canik, Browning, ЗУ-23-2, ПЗРК">
+      </label>
+      <div class="grid-3 mt">
+        <label>Вийшли із зони (БпЛА)<input name="left_total" type="number" min="0" value="0"></label>
+        <label>Локаційно втрачено (БпЛА)<input name="lost_uav" type="number" min="0" value="0"></label>
+        <label>Локаційно втрачено (ракет)<input name="lost_cruise" type="number" min="0" value="0"></label>
+      </div>
+      <label class="mt">Застосовували зброю — разів
+        <input name="weapon_uses" type="number" min="0" value="0">
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Вийшли із зони — по областях</legend>
+      <div id="left_regions" class="rows"></div>
+      <button type="button" class="ghost small" data-add="left_regions">+ додати область</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Уражено об'єктів критичної інфраструктури</legend>
+      <label>Кількість об'єктів<input name="ci_count" type="number" min="0" value="0"></label>
+      <div class="mt">
+        <label>Опис ураження (з часом)
+          <textarea name="ci_text" rows="4" placeholder="01:53 влучання БпЛА по території ПС 110 КВ &quot;Південна&quot;, ... 04:59 – пожежу ліквідовано."></textarea>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Підпис</legend>
+      <div class="grid-2">
+        <label>Посада<input name="signer_role" value="ТВО командира ТГр ППО «Вінниця»"></label>
+        <label>Звання<input name="signer_rank" value="майор"></label>
+      </div>
+      <label class="mt">ПІБ<input name="signer_name" placeholder="Олександр КРОТ"></label>
+    </fieldset>
+
+    <div class="row sticky-row">
+      <button type="button" id="build">Сформувати</button>
+      <button type="button" class="ghost" id="copy">Копіювати</button>
+      <button type="button" class="ghost" id="dl">Завантажити .txt</button>
+      <button type="reset" class="ghost" id="reset">Очистити</button>
+      <span class="status" id="status" role="status"></span>
+    </div>
+  </form>
+
+  <h2 class="out-title">Готова доповідь</h2>
+  <pre id="out" class="report"></pre>
+</main>
+
+<script src="builder.js"></script>
+</body>
+</html>

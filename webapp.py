@@ -33,6 +33,10 @@ STATIC_FILES = {
     "summary.css": "text/css; charset=utf-8",
     "style.css": "text/css; charset=utf-8",
     "app.js": "application/javascript; charset=utf-8",
+    "form.html": "text/html; charset=utf-8",
+    "form.js": "application/javascript; charset=utf-8",
+    "form.css": "text/css; charset=utf-8",
+    "builder.js": "application/javascript; charset=utf-8",
 }
 
 
