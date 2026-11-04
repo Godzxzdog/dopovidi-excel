@@ -82,7 +82,10 @@ function build(d) {
   out.push('');
   out.push(`У період з ${d.from_time} ${d.from_date} до ${d.to_time} ${d.to_date} `
     + `в межах зони відповідальності ${zoneQ} противником було застосовано:`);
-  out.push(`${d.applied_cruise} – крилатихих ракет`);
+  // A zero count for cruise missiles means the line is omitted entirely.
+  if (d.applied_cruise > 0) {
+    out.push(`${d.applied_cruise} – крилатихих ракет`);
+  }
 
   if (d.applied_uav_reactive > 0) {
     out.push(`${d.applied_uav} - ударних БпЛА `
