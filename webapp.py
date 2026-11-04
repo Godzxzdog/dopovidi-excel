@@ -19,9 +19,21 @@ spec = importlib.util.spec_from_file_location("rp", os.path.join(HERE, "report2x
 rp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rp)
 
+_spec_sum = importlib.util.spec_from_file_location("sm", os.path.join(HERE, "summarize.py"))
+summarize = importlib.util.module_from_spec(_spec_sum)
+_spec_sum.loader.exec_module(summarize)
+
 HOST = "127.0.0.1"
 PORT = 8099
 MAX_BODY = 5_000_000
+
+STATIC_FILES = {
+    "summary.html": "text/html; charset=utf-8",
+    "summary.js": "application/javascript; charset=utf-8",
+    "summary.css": "text/css; charset=utf-8",
+    "style.css": "text/css; charset=utf-8",
+    "app.js": "application/javascript; charset=utf-8",
+}
 
 
 PAGE = """<!doctype html>
@@ -189,8 +201,12 @@ class Handler(BaseHTTPRequestHandler):
         if length > MAX_BODY:
             return ""
         raw = self.rfile.read(length).decode("utf-8", errors="replace")
-        parsed = urllib.parse.parse_qs(raw, keep_blank_values=True)
-        return (parsed.get("text") or [""])[0]
+        ctype = (self.headers.get("Content-Type") or "").lower()
+        # raw body (text/plain) is used as-is; form posts carry "text="
+        if ctype.startswith("application/x-www-form-urlencoded"):
+            parsed = urllib.parse.parse_qs(raw, keep_blank_values=True)
+            return (parsed.get("text") or [""])[0]
+        return raw
 
     def _send(self, code, ctype, payload, extra=None):
         self.send_response(code)
@@ -204,8 +220,18 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self._send(200, "text/html; charset=utf-8", PAGE.encode("utf-8"))
-        else:
-            self._send(404, "text/plain; charset=utf-8", b"not found")
+            return
+
+        # static files next to this script
+        name = os.path.basename(urllib.parse.urlparse(self.path).path)
+        if name in STATIC_FILES:
+            path = os.path.join(HERE, name)
+            with open(path, "rb") as f:
+                data = f.read()
+            self._send(200, STATIC_FILES[name], data)
+            return
+
+        self._send(404, "text/plain; charset=utf-8", b"not found")
 
     def do_POST(self):
         text = self._read_body()
@@ -220,6 +246,12 @@ class Handler(BaseHTTPRequestHandler):
                                   "rows": rows}, ensure_ascii=False)
             self._send(200, "application/json; charset=utf-8",
                        payload.encode("utf-8"))
+            return
+
+        if self.path == "/summarize":
+            data = summarize.parse(text)
+            body = summarize.render(data)
+            self._send(200, "text/plain; charset=utf-8", body.encode("utf-8"))
             return
 
         if self.path == "/parse":

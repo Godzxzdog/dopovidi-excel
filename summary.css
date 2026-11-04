@@ -1,0 +1,36 @@
+/* Page-specific styles for the summary generator. */
+
+textarea#src { min-height: 280px; }
+
+.nav { margin-left: auto; font-size: 13px; }
+.nav a { color: #8fa0b6; text-decoration: none; }
+.nav a:hover { color: #e6e9ef; }
+
+.warn { margin: 14px 0 0; font-size: 13px; color: #f87171; }
+.warn:empty { display: none; }
+
+.out-title {
+  margin: 24px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #8fa0b6;
+}
+
+.report {
+  margin: 0;
+  padding: 20px 22px;
+  border: 1px solid #202832;
+  border-radius: 10px;
+  background: #0c0f13;
+  color: #dfe5ee;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 80px;
+}
+
+.report:empty { display: none; }
