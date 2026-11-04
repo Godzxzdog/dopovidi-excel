@@ -154,9 +154,9 @@ function build(d) {
     out.push(`Уражено об’єктів критичної інфраструктури - ${d.ci_count} об’єкт:`);
     if (d.ci_text) out.push(d.ci_text.replace(/\s+/g, ' ').trim());
   } else {
-    // Nothing hit: keep the heading so the report still states it explicitly.
+    // Nothing hit: say so plainly instead of leaving a bare heading.
     out.push('');
-    out.push('Уражено об’єктів критичної інфраструктури');
+    out.push('Об’єктів критичної інфраструктури не уражено');
   }
 
   out.push('');
